@@ -114,3 +114,8 @@ while True:
     except ValueError:
         print("Error al ingresar una opcion")
 
+with open("rutas.txt", "r") as archivo:
+    contenido = archivo.read ()
+    print (contenido)
+
+
