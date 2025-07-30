@@ -29,8 +29,8 @@ def RegistrarUsuario():
             print("Error: Ingrese un número valido para la edad")
     while True:
         contrasena = input("Ingrese su contraseña: ")
-        
-
+        if 'a' in contrasena:
+            break
     print("Usuario registrado exitosamente")
     print(f"Nombre: {nombre} {apellido}")
     print(f"Identificación: {identificacion}")
