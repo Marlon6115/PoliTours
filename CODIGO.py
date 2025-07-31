@@ -13,6 +13,9 @@ if os.path.exists(ARCHIVO_RUTAS):
         seccion = None
         for linea in archivo:
             linea = linea.strip()
+            if not linea or linea.startswith("#"):
+                continue  # omitir líneas vacías o comentarios
+
             if linea == "[GRAFO]":
                 seccion = "grafo"
                 continue
@@ -20,12 +23,15 @@ if os.path.exists(ARCHIVO_RUTAS):
                 seccion = "jerarquia"
                 continue
 
+            if ":" not in linea:
+                continue  # evita error si no hay ':'
+
+            clave, valor = linea.split(":", 1)  # solo divide en el primer ':' encontrado
+
             if seccion == "grafo":
-                ciudad, conexiones = linea.split(":")
-                grafo[ciudad] = eval(conexiones)
+                grafo[clave.strip()] = eval(valor.strip())
             elif seccion == "jerarquia":
-                region, categorias = linea.split(":")
-                jerarquia[region] = eval(categorias)
+                jerarquia[clave.strip()] = eval(valor.strip())
 
 
 def guardar_datos():
