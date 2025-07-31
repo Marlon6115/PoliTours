@@ -1,7 +1,7 @@
 
 
 def RegistrarUsuario():
-    print("Registrando usuario...")
+    print("-----------------|||-----------------")
     nombre = input("Ingrese su nombre: ").strip().lower().capitalize()
     apellido = input("Ingrese su apellido: ").strip().lower().capitalize()
     while True:
@@ -12,7 +12,7 @@ def RegistrarUsuario():
             else:
                 print("Identificacion no valida")
         except ValueError:
-            print("Error: Ingrese una identificación válida")
+            print("Error: Ingrese una identificación valida")
             
     usuario = f"{nombre.lower()}.{apellido.lower()}@gmail.com"
 
@@ -27,16 +27,21 @@ def RegistrarUsuario():
                 print("Edad no valida. Intente nuevamente.")
         except ValueError:
             print("Error: Ingrese un número valido para la edad")
+
     while True:
-        contrasena = input("Ingrese su contraseña: ")
-        if 'a' in contrasena:
+        print("Ingrese una contraseña debe tener al menos una mayuscula, una minuscula y un numero")
+        contrasena = input("Ingrese su contraseña: ").strip()
+        if (any(c.isupper() for c in contrasena) and any(c.islower() for c in contrasena) and any(c.isdigit() for c in contrasena)):
             break
-    print("Usuario registrado exitosamente")
-    print(f"Nombre: {nombre} {apellido}")
-    print(f"Identificación: {identificacion}")
-    print(f"Edad: {edad}")
-    print(f"Usuario: {usuario}")
-    print(f"Contraseña: {contrasena}")
+        else:
+            print("Contraseña no valida. Debe tener al menos una mayuscula, una minuscula y un numero")
+    
+    print(f"Bienvenido {nombre} {apellido}, su usuario es: {usuario}")
+    print("-----------------|||-----------------\n")
+
+    with open("usuarios.txt", "a") as archivo:
+        archivo.write(f"{usuario};{contrasena};{nombre};{apellido};{identificacion};{edad}\n")
+
 
 while True:
     try:
@@ -46,7 +51,7 @@ while True:
         print("2. Acceder como usuario")
         print("3. Salir del sistema")
         print("-----------------|||-----------------")
-        ingreso = int(input("seleccione una opción: "))
+        ingreso = int(input("Seleccione una opción: "))
         if ingreso == 1:
             contrasenaAdmin = "admin123"
             usuarioAdmin = "Administrador.Alex"
@@ -54,11 +59,11 @@ while True:
             while intentosAdmin < 3:
                 print("\nAcceso al sistema de administrador")
                 print("-----------------|||-----------------")
-                contrasena = input("Ingrese la contraseña de administrador: ")
-                usuario = input("Ingrese el usuario de administrador: ")
+                usuario1 = input("Ingrese el usuario de administrador: ")
+                contrasena1 = input("Ingrese la contraseña de administrador: ")
                 print("-----------------|||-----------------")
                 intentosAdmin += 1
-                if contrasena == contrasenaAdmin and usuario == usuarioAdmin:
+                if contrasena1 == contrasenaAdmin and usuario1 == usuarioAdmin:
                     print("Acceso concedido")
                     print("-----------------|||-----------------")
                     #Aqui iria el menu de todo lo que puede hacer el administrador
@@ -72,31 +77,41 @@ while True:
                     print("Usuarios o contraseñas incorrectos")            
         elif ingreso == 2:
             print("\nAccediendo como usuario...")
-            print("-----------------|||-----------------")
             intentosUsuario = 0
             while intentosUsuario < 3:
                 try:
-                    opcionUsuario = input("1. Acceder al Sistema: \n2. Registrarse: \n3.Salir\nSeleccione una opción: ")
+                    print("-----------------|||-----------------")
+                    opcionUsuario = input("1. Acceder al Sistema \n2. Registrarse \n3. Salir\nSeleccione una opción: ")
                     if opcionUsuario == "1":
-                        contrasenaUsuario = "user123"
-                        usuarioUsuario = "Usuario.Alex"
                         usuario = input("Ingrese su usuario: ")
                         contrasena = input("Ingrese su contraseña: ")
-                        intentosUsuario += 1
-                        if usuario == usuarioUsuario and contrasena == contrasenaUsuario:
+                        acceso_concedido = False
+                        try:
+                            with open("usuarios.txt", "r") as archivo:
+                                for linea in archivo:
+                                    datos = linea.strip().split(";")
+                                    if len(datos) >= 2:
+                                        usuarioUsuario = datos[0]
+                                        contrasenaUsuario = datos[1]
+                                        if usuario == usuarioUsuario and contrasena == contrasenaUsuario:
+                                            acceso_concedido = True
+                                            break
+                        except FileNotFoundError:
+                            print("No hay usuarios registrados aún. Regístrese primero.")
+                            break
+                        if acceso_concedido:
                             print("Acceso concedido")
                             # Aqui iria el menu de todo lo que puede hacer el usuario
 
 
                             break
-                        elif intentosUsuario == 3:
-                            print("Demasiados intentos fallidos. Saliendo del sistema ...")
-                            break
                         else:
+                            intentosUsuario += 1
                             print("Usuario o contraseña incorrectos")
                 
                     elif opcionUsuario == "2":
                         print("Registrandose...")
+                        RegistrarUsuario()
                         break
                     elif opcionUsuario == "3":
                         print("Saliendo del sistema ...")
