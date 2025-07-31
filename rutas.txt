@@ -1,0 +1,7 @@
+[GRAFO]
+Quito:{'Riobamba': {'distancia': 15, 'costo': 15}}
+Riobamba:{'Quito': {'distancia': 15, 'costo': 15}}
+Cotopaxi:{}
+[JERARQUIA]
+sierra:{'aventura': ['Quito']}
+oriente:{'naturaleza': ['Cotopaxi']}
