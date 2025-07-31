@@ -7,27 +7,22 @@ grafo = {}
 jerarquia = {}
 ARCHIVO_RUTAS = "rutas.txt"
 
-# Cargar datos desde el archivo al iniciar
 if os.path.exists(ARCHIVO_RUTAS):
     with open(ARCHIVO_RUTAS, "r") as archivo:
         seccion = None
         for linea in archivo:
             linea = linea.strip()
             if not linea or linea.startswith("#"):
-                continue  # omitir líneas vacías o comentarios
-
+                continue
             if linea == "[GRAFO]":
                 seccion = "grafo"
                 continue
             elif linea == "[JERARQUIA]":
                 seccion = "jerarquia"
                 continue
-
             if ":" not in linea:
-                continue  # evita error si no hay ':'
-
-            clave, valor = linea.split(":", 1)  # solo divide en el primer ':' encontrado
-
+                continue
+            clave, valor = linea.split(":", 1)
             if seccion == "grafo":
                 grafo[clave.strip()] = eval(valor.strip())
             elif seccion == "jerarquia":
@@ -227,7 +222,6 @@ while True:
                 if contrasena1 == contrasenaAdmin and usuario1 == usuarioAdmin:
                     print("Acceso concedido")
                     print("-----------------|||-----------------")
-                    #Aqui iria el menu de todo lo que puede hacer el administrador
                     menuAdmin()
                     break
                 elif intentosAdmin == 3:
