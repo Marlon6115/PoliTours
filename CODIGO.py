@@ -1,27 +1,4 @@
 
-grafo = {
-    "Baños": {
-        "Pailón del Diablo": {"distancia": 18, "costo": 3},
-        "Puyo": {"distancia": 88, "costo": 9},
-        "Tena": {"distancia": 173, "costo": 15}
-    },
-    "Pailón del Diablo": {
-        "Baños": {"distancia": 18, "costo": 3},
-        "Puyo": {"distancia": 70, "costo": 7},
-        "Tena": {"distancia": 155, "costo": 13}
-    },
-    "Puyo": {
-        "Baños": {"distancia": 88, "costo": 9},
-        "Pailón del Diablo": {"distancia": 70, "costo": 7},
-        "Tena": {"distancia": 85, "costo": 9}
-    },
-    "Tena": {
-        "Baños": {"distancia": 173, "costo": 15},
-        "Pailón del Diablo": {"distancia": 155, "costo": 13},
-        "Puyo": {"distancia": 85, "costo": 9}
-    }
-}
-
 def RegistrarUsuario():
     print("Registrando usuario...")
     nombre = input("Ingrese su nombre: ").strip().lower().capitalize()
