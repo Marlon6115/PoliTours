@@ -1,7 +1,159 @@
-with open("rutas.txt", "r") as archivo:
-    contenido = archivo.read ()
-    print (contenido)
 
+import os
+import heapq
+from collections import deque
+
+grafo = {}
+jerarquia = {}
+ARCHIVO_RUTAS = "rutas.txt"
+
+# Cargar datos desde el archivo al iniciar
+if os.path.exists(ARCHIVO_RUTAS):
+    with open(ARCHIVO_RUTAS, "r") as archivo:
+        seccion = None
+        for linea in archivo:
+            linea = linea.strip()
+            if linea == "[GRAFO]":
+                seccion = "grafo"
+                continue
+            elif linea == "[JERARQUIA]":
+                seccion = "jerarquia"
+                continue
+
+            if seccion == "grafo":
+                ciudad, conexiones = linea.split(":")
+                grafo[ciudad] = eval(conexiones)
+            elif seccion == "jerarquia":
+                region, categorias = linea.split(":")
+                jerarquia[region] = eval(categorias)
+
+
+def guardar_datos():
+    with open(ARCHIVO_RUTAS, "w") as archivo:
+        archivo.write("[GRAFO]\n")
+        for ciudad, conexiones in grafo.items():
+            archivo.write(f"{ciudad}:{conexiones}\n")
+        archivo.write("[JERARQUIA]\n")
+        for region, categorias in jerarquia.items():
+            archivo.write(f"{region}:{categorias}\n")
+
+def agregarCiudad():
+    ciudad = input("Nombre de la nueva ciudad: ")
+    if ciudad in grafo:
+        print("La ciudad ya existe.")
+        return
+
+    grafo[ciudad] = {}
+    while True:
+        conectar = input("¿Conectar con otra ciudad? (s/n): ").lower()
+        if conectar == 'n':
+            break
+        destino = input("Ciudad destino: ")
+        distancia = int(input("Distancia (km): "))
+        costo = int(input("Costo ($): "))
+        grafo[ciudad][destino] = {"distancia": distancia, "costo": costo}
+        if destino not in grafo:
+            grafo[destino] = {}
+        grafo[destino][ciudad] = {"distancia": distancia, "costo": costo}
+
+    region = input("Región (ej. Sierra, Costa, Oriente): ")
+    categoria = input("Categoría (ej. Naturaleza, Aventura): ")
+
+    if region not in jerarquia:
+        jerarquia[region] = {}
+    if categoria not in jerarquia[region]:
+        jerarquia[region][categoria] = []
+    jerarquia[region][categoria].append(ciudad)
+    guardar_datos()
+    print("Ciudad agregada con éxito.")
+
+def listarCiudades():
+    if not grafo:
+        print("No hay ciudades registradas.")
+        return
+    for ciudad, conexiones in grafo.items():
+        print(f"\nCiudad: {ciudad}")
+        for destino, datos in conexiones.items():
+            print(f"  - Hacia {destino}: {datos['distancia']} km, ${datos['costo']}")
+
+def consultarCiudad():
+    ciudad = input("Ciudad a consultar: ")
+    if ciudad not in grafo:
+        print("No existe.")
+        return
+    print(f"Conexiones desde {ciudad}:")
+    for destino, datos in grafo[ciudad].items():
+        print(f"  - {destino}: {datos['distancia']} km, ${datos['costo']}")
+
+def actualizarCiudad():
+    ciudad = input("Ciudad a actualizar: ")
+    if ciudad not in grafo:
+        print("No existe.")
+        return
+    print("Actualizando conexiones:")
+    grafo[ciudad] = {}
+    while True:
+        destino = input("Nuevo destino (vacío para terminar): ")
+        if not destino:
+            break
+        distancia = int(input("Distancia: "))
+        costo = int(input("Costo: "))
+        grafo[ciudad][destino] = {"distancia": distancia, "costo": costo}
+        if destino not in grafo:
+            grafo[destino] = {}
+        grafo[destino][ciudad] = {"distancia": distancia, "costo": costo}
+    guardar_datos()
+    print("Ciudad actualizada.")
+
+def eliminarCiudad():
+    ciudad = input("Ciudad a eliminar: ")
+    if ciudad not in grafo:
+        print("No existe.")
+        return
+    for destino in list(grafo[ciudad]):
+        del grafo[destino][ciudad]
+    del grafo[ciudad]
+
+    for region in list(jerarquia):
+        for categoria in list(jerarquia[region]):
+            if ciudad in jerarquia[region][categoria]:
+                jerarquia[region][categoria].remove(ciudad)
+            if not jerarquia[region][categoria]:
+                del jerarquia[region][categoria]
+        if not jerarquia[region]:
+            del jerarquia[region]
+
+    guardar_datos()
+    print("Ciudad eliminada.")
+
+def menuAdmin():
+    print("\nADMINISTRADOR DE RUTAS")
+    while True:
+        try:
+            print("1. Agregar nueva ciudad")
+            print("2. Listar ciudades")
+            print("3. Consultar ciudad/punto turistico")
+            print("4. Actualizar ciudad/punto turistico")
+            print("5. Eliminar ciudad/punto turistico")
+            print("6. Salir")
+            opcion = input("Seleccione una opción: ")
+            if opcion == "1":
+                agregarCiudad()
+            elif opcion == "2":
+                listarCiudades()
+            elif opcion == "3":
+                consultarCiudad()
+            elif opcion == "4":
+                actualizarCiudad()
+            elif opcion == "5":
+                eliminarCiudad()
+            elif opcion == "6":
+                print("Saliendo del administrador de rutas.")
+                break
+            else:
+                print("Opción no válida. Intente nuevamente.")
+        except ValueError:
+            print("Error: Entrada no válida. Por favor, ingrese un número.")
 
 def RegistrarUsuario():
     print("-----------------|||-----------------")
@@ -70,8 +222,7 @@ while True:
                     print("Acceso concedido")
                     print("-----------------|||-----------------")
                     #Aqui iria el menu de todo lo que puede hacer el administrador
-
-
+                    menuAdmin()
                     break
                 elif intentosAdmin == 3:
                     print("Demasiados intentos fallidos. Saliendo del sistema ...")
