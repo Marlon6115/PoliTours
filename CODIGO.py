@@ -280,32 +280,28 @@ def agregarCiudad():
 
     grafo[ciudad] = {}
 
-    # Pedir una conexión manual (la primera ciudad de conexión)
-    destino_manual = input("Conectar con qué ciudad ya existente: ").strip()
-    if destino_manual not in grafo:
-        print(f"La ciudad '{destino_manual}' no existe.")
+    destino = input("Conectar con una ciudad ya registrada: ").strip()
+    if destino not in grafo:
+        print(f"La ciudad '{destino}' no fue registrada.")
         return
 
     try:
-        distancia_manual = int(input(f"Distancia entre {ciudad} y {destino_manual} (km): "))
-        costo_manual = int(input(f"Costo entre {ciudad} y {destino_manual} ($): "))
+        distancia_manual = int(input(f"Distancia entre {ciudad} y {destino} (km): "))
+        costo_manual = int(input(f"Costo entre {ciudad} y {destino} ($): "))
     except ValueError:
         print("Distancia o costo no válido.")
         return
 
-    # Conexión manual
-    grafo[ciudad][destino_manual] = {"distancia": distancia_manual, "costo": costo_manual}
-    grafo[destino_manual][ciudad] = {"distancia": distancia_manual, "costo": costo_manual}
+    grafo[ciudad][destino] = {"distancia": distancia_manual, "costo": costo_manual}
+    grafo[destino][ciudad] = {"distancia": distancia_manual, "costo": costo_manual}
 
-    # Generar conexiones automáticas con otras ciudades (excluyendo la ya conectada)
     for otra_ciudad in grafo:
-        if otra_ciudad != ciudad and otra_ciudad != destino_manual:
+        if otra_ciudad != ciudad and otra_ciudad != destino:
             distancia = random.randint(600, 1500)
-            costo = round(distancia / 70)  # Puedes ajustar la fórmula
+            costo = round(distancia / 70)
             grafo[ciudad][otra_ciudad] = {"distancia": distancia, "costo": costo}
             grafo[otra_ciudad][ciudad] = {"distancia": distancia, "costo": costo}
 
-    # Región y categoría jerárquica
     region = input("Región (ej. Sierra, Costa, Oriente): ").strip()
     categoria = input("Categoría (ej. Naturaleza, Aventura): ").strip()
 

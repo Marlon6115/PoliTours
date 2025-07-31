@@ -1,0 +1,5 @@
+[GRAFO]
+Quito:{'Cuenca': {'distancia': 2000, 'costo': 20}}
+Cuenca:{'Quito': {'distancia': 2000, 'costo': 20}}
+[JERARQUIA]
+Sierra:{'Aventura': ['Cuenca']}
