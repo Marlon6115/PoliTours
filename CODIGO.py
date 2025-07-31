@@ -273,46 +273,48 @@ def guardar_datos():
             archivo.write(f"{region}:{categorias}\n")
 
 def agregarCiudad():
-    ciudad = input("Nombre de la nueva ciudad: ").strip()
-    if ciudad in grafo:
-        print("La ciudad ya existe.")
-        return
+    ciudad1 = input("Nombre de la primera ciudad: ").strip()
+    ciudad2 = input("Nombre de la segunda ciudad: ").strip()
 
-    grafo[ciudad] = {}
-
-    destino = input("Conectar con una ciudad ya registrada: ").strip()
-    if destino not in grafo:
-        print(f"La ciudad '{destino}' no fue registrada.")
+    if ciudad1 in grafo and ciudad2 in grafo[ciudad1]:
+        print("No se puede registrar una ruta ya existente entre esas dos ciudades.")
         return
 
     try:
-        distancia_manual = int(input(f"Distancia entre {ciudad} y {destino} (km): "))
-        costo_manual = int(input(f"Costo entre {ciudad} y {destino} ($): "))
+        distancia = int(input(f"Distancia entre {ciudad1} y {ciudad2} (km): "))
+        costo = int(input(f"Costo entre {ciudad1} y {ciudad2} ($): "))
     except ValueError:
         print("Distancia o costo no válido.")
         return
 
-    grafo[ciudad][destino] = {"distancia": distancia_manual, "costo": costo_manual}
-    grafo[destino][ciudad] = {"distancia": distancia_manual, "costo": costo_manual}
+    if ciudad1 not in grafo:
+        grafo[ciudad1] = {}
+        region1 = input(f"Región de {ciudad1} (ej. Sierra, Costa, Oriente): ").strip()
+        categoria1 = input(f"Categoría de {ciudad1} (ej. Naturaleza, Aventura): ").strip()
 
-    for otra_ciudad in grafo:
-        if otra_ciudad != ciudad and otra_ciudad != destino:
-            distancia = random.randint(600, 1500)
-            costo = round(distancia / 70)
-            grafo[ciudad][otra_ciudad] = {"distancia": distancia, "costo": costo}
-            grafo[otra_ciudad][ciudad] = {"distancia": distancia, "costo": costo}
+        if region1 not in jerarquia:
+            jerarquia[region1] = {}
+        if categoria1 not in jerarquia[region1]:
+            jerarquia[region1][categoria1] = []
+        jerarquia[region1][categoria1].append(ciudad1)
 
-    region = input("Región (ej. Sierra, Costa, Oriente): ").strip()
-    categoria = input("Categoría (ej. Naturaleza, Aventura): ").strip()
+    if ciudad2 not in grafo:
+        grafo[ciudad2] = {}
+        region2 = input(f"Región de {ciudad2} (ej. Sierra, Costa, Oriente): ").strip()
+        categoria2 = input(f"Categoría de {ciudad2} (ej. Naturaleza, Aventura): ").strip()
 
-    if region not in jerarquia:
-        jerarquia[region] = {}
-    if categoria not in jerarquia[region]:
-        jerarquia[region][categoria] = []
-    jerarquia[region][categoria].append(ciudad)
+        if region2 not in jerarquia:
+            jerarquia[region2] = {}
+        if categoria2 not in jerarquia[region2]:
+            jerarquia[region2][categoria2] = []
+        jerarquia[region2][categoria2].append(ciudad2)
+
+    grafo[ciudad1][ciudad2] = {"distancia": distancia, "costo": costo}
+    grafo[ciudad2][ciudad1] = {"distancia": distancia, "costo": costo}
 
     guardar_datos()
-    print(f"Ciudad '{ciudad}' agregada con éxito y conectada automáticamente con las demás.")
+    print(f"Ruta entre '{ciudad1}' y '{ciudad2}' registrada con éxito.")
+
 
 
 def listarCiudades():
@@ -378,11 +380,11 @@ def menuAdmin():
     print("\nADMINISTRADOR DE RUTAS")
     while True:
         try:
-            print("1. Agregar nueva ciudad")
-            print("2. Listar ciudades")
-            print("3. Consultar ciudad/punto turistico")
-            print("4. Actualizar ciudad/punto turistico")
-            print("5. Eliminar ciudad/punto turistico")
+            print("1. Agregar nuevo punto turístico")
+            print("2. Listar puntos turístico")
+            print("3. Consultar punto turistico")
+            print("4. Actualizar punto turistico")
+            print("5. Eliminar punto turistico")
             print("6. Salir")
             opcion = input("Seleccione una opción: ")
             if opcion == "1":
