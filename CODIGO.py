@@ -457,7 +457,7 @@ while True:
         ingreso = int(input("Seleccione una opción: "))
         if ingreso == 1:
             contrasenaAdmin = "admin123"
-            usuarioAdmin = "Administrador.Alex"
+            usuarioAdmin = "algoritmos"
             intentosAdmin = 0
             while intentosAdmin < 3:
                 print("\nAcceso al sistema de administrador")
