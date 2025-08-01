@@ -1,6 +1,5 @@
 import os
 import heapq
-from collections import deque
 
 grafo = {}
 jerarquia = {}
