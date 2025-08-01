@@ -43,23 +43,66 @@ def agregarCiudad():
     if ciudad in grafo:
         print("La ciudad ya existe.")
         return
-
     grafo[ciudad] = {}
     while True:
         conectar = input("¿Conectar con otra ciudad? (s/n): ").lower()
         if conectar == 'n':
             break
         destino = input("Ciudad destino: ")
-        distancia = int(input("Distancia (km): "))
-        costo = int(input("Costo ($): "))
+        while True:
+            try:
+                distancia = int(input("Distancia desde la capital (km): "))
+                if distancia >= 0:
+                    break
+                else:
+                    print("La distancia debe ser un número positivo.")
+            except ValueError:
+                print("Error: Ingrese un número válido para la distancia.")
+        while True:
+            try:
+                costo = int(input("Costo ($): "))
+                if costo >= 0:
+                    break
+                else:
+                    print("El costo debe ser un número positivo.")
+            except ValueError:
+                print("Error: Ingrese un número válido para el costo.")
         grafo[ciudad][destino] = {"distancia": distancia, "costo": costo}
         if destino not in grafo:
             grafo[destino] = {}
         grafo[destino][ciudad] = {"distancia": distancia, "costo": costo}
-
-    region = input("Región (ej. Sierra, Costa, Oriente): ")
-    categoria = input("Categoría (ej. Naturaleza, Aventura): ")
-
+    while True:
+        try:
+            opcionRegion = int(input("Ingrese la region 1. Sierra 2. Costa 3. Oriente: "))
+            if opcionRegion == 1:
+                region = "Sierra"
+                break
+            elif opcionRegion == 2:
+                region = "Costa"
+                break
+            elif opcionRegion == 3:
+                region = "Oriente"
+                break
+            else:
+                print("Opción no válida. Intente nuevamente.")
+        except ValueError:
+            print("Error: Ingrese un número válido para la region.")
+    while True:
+        try:
+            opcionCategoria = int(input("Ingrese la categoria 1. Naturaleza 2. Aventura 3. Cultural: "))
+            if opcionCategoria == 1:
+                categoria = "Naturaleza"
+                break
+            elif opcionCategoria == 2:
+                categoria = "Aventura"
+                break
+            elif opcionCategoria == 3:
+                categoria = "Cultural"
+                break
+            else:
+                print("Opción no válida. Intente nuevamente.")
+        except ValueError:
+            print("Error: Ingrese un número válido para la categoría.")
     if region not in jerarquia:
         jerarquia[region] = {}
     if categoria not in jerarquia[region]:
@@ -97,8 +140,24 @@ def actualizarCiudad():
         destino = input("Nuevo destino (vacío para terminar): ")
         if not destino:
             break
-        distancia = int(input("Distancia: "))
-        costo = int(input("Costo: "))
+        while True:
+            try:
+                distancia = int(input("Distancia desde la capital (km): "))
+                if distancia >= 0:
+                    break
+                else:
+                    print("La distancia debe ser un número positivo.")
+            except ValueError:
+                print("Error: Ingrese un número válido para la distancia.")
+        while True:
+            try:
+                costo = int(input("Costo ($): "))
+                if costo >= 0:
+                    break
+                else:
+                    print("El costo debe ser un número positivo.")
+            except ValueError:
+                print("Error: Ingrese un número válido para el costo.")
         grafo[ciudad][destino] = {"distancia": distancia, "costo": costo}
         if destino not in grafo:
             grafo[destino] = {}
