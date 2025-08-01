@@ -1,7 +1,8 @@
+
 import os
 import heapq
-from collections import deque
 
+turistico = {}
 grafo = {}
 jerarquia = {}
 ARCHIVO_RUTAS = "rutas.txt"
@@ -11,13 +12,14 @@ if os.path.exists(ARCHIVO_RUTAS):
         seccion = None
         for linea in archivo:
             linea = linea.strip()
-            if not linea or linea.startswith("#"):
-                continue
             if linea == "[GRAFO]":
                 seccion = "grafo"
                 continue
             elif linea == "[JERARQUIA]":
                 seccion = "jerarquia"
+                continue
+            elif linea == "[TURISTICO]":
+                seccion = "turistico"
                 continue
 
             if seccion == "grafo":
@@ -33,6 +35,14 @@ if os.path.exists(ARCHIVO_RUTAS):
                     jerarquia[region] = eval(categorias)
                 except ValueError:
                     print(f"Error en la línea del archivo (JERARQUÍA): {linea}")
+
+            elif seccion == "turistico":
+                try:
+                    nombre, datos = linea.split(":", 1)
+                    turistico[nombre] = eval(datos)
+                except ValueError:
+                    print(f"Error en la línea del archivo (TURISTICO): {linea}")
+
 
 def dijkstra(inicio, fin):
     cola = [(0, inicio, [])]
@@ -221,7 +231,7 @@ def eliminar_punto(nombre):
             eliminado = lineas.pop(opcion - 1)
             with open(archivo, "w") as f:
                 f.writelines(lineas)
-            print(f"[{eliminado.strip()}] eliminado correctamente.")
+            print(f"[{eliminado.strip()}] eliminado correctamente.\n")
         else:
             print("Opción fuera del rango.")
     except ValueError:
@@ -229,7 +239,7 @@ def eliminar_punto(nombre):
 
 def menu_cliente(nombre):
     while True:
-        print("-----------------|||-----------------")
+        print("\n-----------------|||-----------------")
         print("\n---------- MENÚ CLIENTE -----------")
         print("1. Ver mapa")
         print("2. Consultar la ruta óptima")
@@ -269,16 +279,22 @@ def guardar_datos():
         archivo.write("[GRAFO]\n")
         for ciudad, conexiones in grafo.items():
             archivo.write(f"{ciudad}:{conexiones}\n")
+
         archivo.write("[JERARQUIA]\n")
         for region, categorias in jerarquia.items():
             archivo.write(f"{region}:{categorias}\n")
+
+        archivo.write("[TURISTICO]\n")
+        for nombre, info in turistico.items():
+            archivo.write(f"{nombre}:{info}\n")
+
 
 def agregarCiudad():
     ciudad1 = input("Nombre de la primera ciudad: ").strip()
     ciudad2 = input("Nombre de la segunda ciudad: ").strip()
 
     if ciudad1 in grafo and ciudad2 in grafo[ciudad1]:
-        print("No se puede registrar una ruta ya existente entre esas dos ciudades.")
+        print("No se puede registrar una ruta ya existente entre esas dos ciudades.\n")
         return
 
     try:
@@ -314,7 +330,7 @@ def agregarCiudad():
     grafo[ciudad2][ciudad1] = {"distancia": distancia, "costo": costo}
 
     guardar_datos()
-    print(f"Ruta entre '{ciudad1}' y '{ciudad2}' registrada con éxito.")
+    print(f"Ruta entre '{ciudad1}' y '{ciudad2}' registrada con éxito.\n")
 
 
 
@@ -347,30 +363,14 @@ def actualizarCiudad():
         destino = input("Nuevo destino (vacío para terminar): ")
         if not destino:
             break
-        while True:
-            try:
-                distancia = int(input("Distancia desde la capital (km): "))
-                if distancia > 0:
-                    break
-                else:
-                    print("La distancia mal ingresada")
-            except ValueError:
-                print("Error: Ingrese un número válido para la distancia.")
-        while True:
-            try:
-                costo = int(input("Costo ($): "))
-                if costo > 0:
-                    break
-                else:
-                    print("Costo mal ingresado")
-            except ValueError:
-                print("Error: Ingrese un número válido para el costo.")
+        distancia = int(input("Distancia: "))
+        costo = int(input("Costo: "))
         grafo[ciudad][destino] = {"distancia": distancia, "costo": costo}
         if destino not in grafo:
             grafo[destino] = {}
         grafo[destino][ciudad] = {"distancia": distancia, "costo": costo}
     guardar_datos()
-    print("Ciudad actualizada.")
+    print("Ciudad actualizada.\n")
 
 def eliminarCiudad():
     ciudad = input("Ciudad a eliminar: ")
@@ -393,16 +393,110 @@ def eliminarCiudad():
     guardar_datos()
     print("Ciudad eliminada.")
 
+def agregarTuristico():
+    print("\n------------------|||------------------")
+    print("\n--- Agregar nuevo punto turístico ---")
+    nombre = input("Nombre del punto turístico: ")
+    ciudad = input("Ciudad donde se encuentra: ")
+    costo = input("Ingrese el costo por el lugar: ")
+
+    punto = {
+        "nombre": nombre,
+        "ciudad": ciudad,
+        "costo": costo
+    }
+
+    turistico[nombre] = punto
+    guardar_datos()
+    print(f"Punto turístico '{nombre}' agregado correctamente.")
+
+def listarTuristico():
+    print("\n--- Lista de puntos turísticos ---")
+    if not turistico:
+        print("No hay puntos turísticos registrados.")
+        return
+
+    for i, punto in enumerate(turistico.values(), start=1):
+        print(f"{i}. {punto['nombre']} - {punto['ciudad']} : {punto['costo']}")
+
+def actualizarTuristico():
+    print("\n--- Actualizar punto turístico ---")
+    if not turistico:
+        print("No hay puntos turísticos registrados.")
+        return
+
+    for i, nombre in enumerate(turistico, start=1):
+        print(f"{i}. {nombre}")
+
+    try:
+        print("\n-----------------------------|||-------------------------------------")
+        opcion = int(input("Seleccione el número del punto turístico a actualizar: "))
+        if opcion < 1 or opcion > len(turistico):
+            print("Opción fuera de rango.")
+            return
+
+        nombre_antiguo = list(turistico.keys())[opcion - 1]
+        print(f"Actualizando '{nombre_antiguo}'")
+
+        nuevo_nombre = input("Nuevo nombre (dejar vacío para mantener actual): ").strip()
+        ciudad = input("Nueva ciudad (dejar vacío para mantener actual): ").strip()
+        costo = input("Nuevo costo (dejar vacío para mantener actual): ").strip()
+
+        # Si se cambia el nombre, se reubica en el diccionario
+        punto = turistico.pop(nombre_antiguo)
+        punto["nombre"] = nuevo_nombre if nuevo_nombre else punto["nombre"]
+        punto["ciudad"] = ciudad if ciudad else punto["ciudad"]
+        punto["costo"] = costo if costo else punto["costo"]
+
+        turistico[punto["nombre"]] = punto
+        guardar_datos()
+        print(f"Punto turístico actualizado correctamente.\n")
+    except ValueError:
+        print("Entrada no válida.")
+
+def eliminarTuristico():
+    print("\n--- Eliminar punto turístico ---")
+    if not turistico:
+        print("No hay puntos turísticos registrados.")
+        return
+
+    for i, nombre in enumerate(turistico, start=1):
+        print(f"{i}. {nombre}")
+
+    try:
+        opcion = int(input("Seleccione el número del punto turístico a eliminar: "))
+        if opcion < 1 or opcion > len(turistico):
+            print("Opción fuera de rango.")
+            return
+
+        nombre_eliminar = list(turistico.keys())[opcion - 1]
+        confirmado = input(f"¿Está seguro que desea eliminar '{nombre_eliminar}'? (s/n): ").strip().lower()
+        if confirmado == "s":
+            del turistico[nombre_eliminar]
+            guardar_datos()
+            print(f"Punto turístico '{nombre_eliminar}' eliminado correctamente.")
+        else:
+            print("Eliminación cancelada.")
+    except ValueError:
+        print("Entrada no válida.")
+
+
 def menuAdmin():
     print("\nADMINISTRADOR DE RUTAS")
     while True:
         try:
-            print("1. Agregar nuevo punto turístico")
-            print("2. Listar puntos turístico")
-            print("3. Consultar punto turistico")
-            print("4. Actualizar punto turistico")
-            print("5. Eliminar punto turistico")
-            print("6. Salir")
+            print("\n--------------|||--------------")
+            print("1. Agregar nuevo ciudades")
+            print("2. Listar ciudad")
+            print("3. Consultar ciudades")
+            print("4. Actualizar ciudades")
+            print("5. Eliminar ciudades")
+            print("6. Agregar punto turístico")
+            print("7. Listar puntos turísticos")
+            print("8. Actualizar punto turístico")
+            print("9. Eliminar punto turístico")
+
+            print("10. Salir")
             opcion = input("Seleccione una opción: ")
             if opcion == "1":
                 agregarCiudad()
@@ -415,6 +509,15 @@ def menuAdmin():
             elif opcion == "5":
                 eliminarCiudad()
             elif opcion == "6":
+                agregarTuristico()
+            elif opcion == "7":
+                listarTuristico()
+            elif opcion == "8":
+                actualizarTuristico()
+            elif opcion == "9":
+                eliminarTuristico()
+
+            elif opcion == "10":
                 print("Saliendo del administrador de rutas.")
                 break
             else:
@@ -488,6 +591,7 @@ while True:
                 if contrasena1 == contrasenaAdmin and usuario1 == usuarioAdmin:
                     print("Acceso concedido")
                     print("-----------------|||-----------------")
+                    #Aqui iria el menu de todo lo que puede hacer el administrador
                     menuAdmin()
                     break
                 elif intentosAdmin == 3:
@@ -506,6 +610,7 @@ while True:
                         usuario = input("Ingrese su usuario: ")
                         contrasena = input("Ingrese su contraseña: ")
                         acceso_concedido = False
+                        
                         try:
                             with open("usuarios.txt", "r") as archivo:
                                 for linea in archivo:
@@ -549,5 +654,3 @@ while True:
             print("Opcion no valida")
     except ValueError:
         print("Error al ingresar una opcion")
-    
-
