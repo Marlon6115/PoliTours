@@ -1,39 +1,37 @@
-import heapq
 import os
+import heapq
+import random
+from collections import deque
 
-grafo = {
-    "Baños": {
-        "Pailón del Diablo": {"distancia": 18, "costo": 3},
-        "Puyo": {"distancia": 88, "costo": 9},
-        "Tena": {"distancia": 173, "costo": 15}
-    },
-    "Pailón del Diablo": {
-        "Baños": {"distancia": 18, "costo": 3},
-        "Puyo": {"distancia": 70, "costo": 7},
-        "Tena": {"distancia": 155, "costo": 13}
-    },
-    "Puyo": {
-        "Baños": {"distancia": 88, "costo": 9},
-        "Pailón del Diablo": {"distancia": 70, "costo": 7},
-        "Tena": {"distancia": 85, "costo": 9}
-    },
-    "Tena": {
-        "Baños": {"distancia": 173, "costo": 15},
-        "Pailón del Diablo": {"distancia": 155, "costo": 13},
-        "Puyo": {"distancia": 85, "costo": 9}
-    }
-}
+grafo = {}
+jerarquia = {}
+ARCHIVO_RUTAS = "rutas.txt"
 
-jerarquia = {
-    "Sierra": {
-        "Espiritualidad": ["Baños"],
-        "Naturaleza": ["Pailón del Diablo"],
-        "Aguas termales": ["Baños"]
-    },
-    "Oriente": {
-        "Naturaleza": ["Puyo", "Tena"]
-    }
-}
+if os.path.exists(ARCHIVO_RUTAS):
+    with open(ARCHIVO_RUTAS, "r") as archivo:
+        seccion = None
+        for linea in archivo:
+            linea = linea.strip()
+            if linea == "[GRAFO]":
+                seccion = "grafo"
+                continue
+            elif linea == "[JERARQUIA]":
+                seccion = "jerarquia"
+                continue
+
+            if seccion == "grafo":
+                try:
+                    ciudad, conexiones = linea.split(":", 1)
+                    grafo[ciudad] = eval(conexiones)
+                except ValueError:
+                    print(f"Error en la línea del archivo (GRAFO): {linea}")
+
+            elif seccion == "jerarquia":
+                try:
+                    region, categorias = linea.split(":", 1)
+                    jerarquia[region] = eval(categorias)
+                except ValueError:
+                    print(f"Error en la línea del archivo (JERARQUÍA): {linea}")
 
 def dijkstra(inicio, fin):
     cola = [(0, inicio, [])]
@@ -71,122 +69,165 @@ def merge(izq, der):
     return resultado
 
 def ver_mapa():
-    print("\nMapa de lugares turísticos:")
+    print("\nMapa de puntos turísticos:")
+    indice = 1
     for ciudad, conexiones in grafo.items():
         for destino, info in conexiones.items():
             distancia = info["distancia"]
             costo = info["costo"]
-            print(f"{ciudad} a {destino} ({distancia} km, ${costo})")
+            print(f"{indice}. {ciudad} a {destino} ({distancia} km, ${costo})")
+            indice += 1
+
 
 def consultar_ruta_optima():
     inicio = input("Punto turístico de origen: ")
     destino = input("Punto turístico destino: ")
+    
     camino, costo = dijkstra(inicio, destino)
+    
     if camino:
-        print("Ruta óptima:", " a ".join(camino))
+        distancia_total = 0
+        for i in range(len(camino) - 1):
+            ciudad_actual = camino[i]
+            ciudad_siguiente = camino[i + 1]
+            distancia_total += grafo[ciudad_actual][ciudad_siguiente]["distancia"]
+
+        print("Ruta óptima:", " -> ".join(camino))
+        print("Distancia total:", distancia_total, "km")
         print("Costo total: $", costo)
     else:
         print("Ruta no encontrada.")
 
+
 def explorar_lugares():
-    print("\nZonas y categorías turísticas:")
+    print("\nZonas y categorías:")
     for zona, categorias in jerarquia.items():
         print(f"- {zona}")
         for categoria, lugares in categorias.items():
             print(f"  > {categoria}: {', '.join(lugares)}")
 
-def seleccionar_lugares(nombre_cliente):
+def seleccionar_puntos(nombre):
+    opciones = []
+    indice = 1
+    for ciudad, conexiones in grafo.items():
+        for destino, info in conexiones.items():
+            distancia = info["distancia"]
+            costo = info["costo"]
+            descripcion = f"{ciudad} a {destino} ({distancia} km, ${costo})"
+            print(f"{indice}. {descripcion}")
+            opciones.append(descripcion)
+            indice += 1
+
+    if not opciones:
+        print("No hay trayectos disponibles.")
+        return
+
     seleccion = []
     while True:
-        lugar = input("Ingrese una ciudad o punto turístico (Para salir ingrese [0]): ")
-        if lugar == '0':
+        entrada = int(input("Ingrese un punto turístico de la lista (o [0] para salir): "))
+        if entrada == 0:
             break
-        if lugar not in grafo:
-            print("Ese lugar no está disponible en el mapa. Intenta con otro.")
+        if entrada > len(opciones):
+            print("Número fuera de rango.")
             continue
-        seleccion.append(lugar)
+        if opciones[entrada - 1] in seleccion:
+            print("Ya seleccionaste ese punto turístico.")
+            continue
+        seleccion.append(opciones[entrada - 1])
+        print(f"[{opciones[entrada - 1]}] agregando.....")
 
-    if not seleccion:
-        print("No se seleccionaron lugares.")
-        return
+    archivo = f"rutas-{nombre}.txt"
+    try:
+        with open(archivo, "a") as f:
+            for punto in seleccion:
+                f.write(f"{punto}\n")
+        print(f"Selección guardada en '{archivo}'")
+    except Exception as e:
+        print(f"Error al guardar la selección: {e}")
 
-    archivo = f"rutas-{nombre_cliente}.txt"
-    with open(archivo, "a") as f:
-        for lugar in seleccion:
-            f.write(f"{lugar}\n")
-    print("Selección guardada en", archivo)
-
-def listar_lugares(nombre_cliente):
-    archivo = f"rutas-{nombre_cliente}.txt"
+def listar_puntos(nombre):
+    archivo = f"rutas-{nombre}.txt"
     if not os.path.exists(archivo):
-        print("No hay selección guardada.")
+        print("No hay puntos turísticos guardados aún.")
         return
+
+    print(f"\nPuntos turísticos seleccionados por {nombre}:")
     with open(archivo, "r") as f:
-        lugares = [line.strip() for line in f.readlines()]
-    lugares = merge_sort(lugares)
-    print("Lugares seleccionados (ordenados):", lugares)
-    
-    total = 0
-    for i in range(len(lugares)-1):
-        _, costo = dijkstra(lugares[i], lugares[i+1])
-        total += costo
-    print("Costo total: $", total)
+        lineas = f.readlines()
+        if not lineas:
+            print("Archivo vacío.")
+            return
+        for i, linea in enumerate(lineas, 1):
+            print(f"{i}. {linea.strip()}")
+
+def modificar_punto(nombre):
+    archivo = f"rutas-{nombre}.txt"
+    if not os.path.exists(archivo):
+        print("No hay puntos turísticos guardados.")
+        return
+
+    with open(archivo, "r") as f:
+        lineas = f.readlines()
+
+    if not lineas:
+        print("No hay puntos turísticos para modificar.")
+        return
+
+    print("\nSeleccione el punto turístico a modificar:")
+    for i, linea in enumerate(lineas, 1):
+        print(f"{i}. {linea.strip()}")
 
     while True:
-        try:
-            opcion = int(input("\n1. Actualizar\n2. Eliminar\n3. Salir\nSeleccione una opcion: "))
-            if opcion == 1:
-                viejo = input("Lugar a actualizar: ")
-                nuevo = input("Nuevo nombre: ")
-                lugares = [nuevo if l == viejo else l for l in lugares]
-                with open(archivo, "w") as f:
-                    for l in lugares:
-                        f.write(f"{l}\n")
-                print("Nombre actualizado exitosamente")
-                break
-            elif opcion == 2:
-                borrar = input("Lugar a eliminar: ")
-                lugares = [l for l in lugares if l != borrar]
-                with open(archivo, "w") as f:
-                    for l in lugares:
-                        f.write(f"{l}\n")
-                print("Lugar eliminado exitosamente")
-                break
-            elif opcion == 3:
-                break
-            else:
-                print("Opción no válida.")
-        except ValueError:
-            print("Error: Por favor, ingrese un número válido.")
+        opcion = int(input("\n1. Actualizar\n2. Eliminar\n3. Salir\nSeleccione una opcion: "))
+        if opcion == 1:
+            viejo = input("Lugar a actualizar: ")
+            nuevo = input("Nuevo nombre: ")
+            lugares = [nuevo if l == viejo else l for l in lugares]
+            with open(archivo, "w") as f:
+                for l in lugares:
+                    f.write(f"{l}\n")
+            print("Nombre actualizado exitosamente")
+            break
+        elif opcion == 2:
+            borrar = input("Lugar a eliminar: ")
+            lugares = [l for l in lugares if l != borrar]
+            with open(archivo, "w") as f:
+                for l in lugares:
+                    f.write(f"{l}\n")
+            print("Lugar eliminado exitosamente")
+            break
+        elif opcion == 3:
+            break
+        else:
+            print("Opción no válida.")
 
-def menu_cliente(nombre_cliente):
+def menu_cliente(nombre):
     while True:
-        try:
-            print("\n--- MENÚ CLIENTE ---")
-            print("1. Ver mapa")
-            print("2. Consultar ruta óptima")
-            print("3. Explorar lugares")
-            print("4. Seleccionar lugares turísticos")
-            print("5. Lista de lugares turísticos seleccionados")
-            print("6. Salir")
-            opcion = int(input("Seleccione una opción: "))
-            if opcion == 1:
-                ver_mapa()
-            elif opcion == 2:
-                consultar_ruta_optima()
-            elif opcion == 3:
-                explorar_lugares()
-            elif opcion == 4:
-                seleccionar_lugares(nombre_cliente)
-            elif opcion == 5:
-                listar_lugares(nombre_cliente)
-            elif opcion == 6:
-                print("¡Gracias por usar el sistema!")
-                break
-            else:
-                print("Opción inválida.")
-        except ValueError:
-            print("Error: Por favor, ingrese un número válido.")
+        print("\n--- MENÚ CLIENTE ---")
+        print("1. Ver mapa")
+        print("2. Consultar ruta óptima")
+        print("3. Explorar lugares")
+        print("4. Seleccionar lugares turísticos")
+        print("5. Lista de lugares turísticos seleccionados")
+        print("6. Salir")
+
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            ver_mapa()
+        elif opcion == "2":
+            consultar_ruta_optima()
+        elif opcion == "3":
+            explorar_lugares()
+        elif opcion == "4":
+            seleccionar_lugares(nombre_cliente)
+        elif opcion == "5":
+            listar_lugares(nombre_cliente)
+        elif opcion == "6":
+            print("¡Gracias por usar el sistema!")
+            break
+        else:
+            print("Opción inválida.")
 
 def iniciar_sesion():
     nombre_cliente = input("Usuario: ").strip()
