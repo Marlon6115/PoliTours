@@ -1,5 +1,11 @@
 [GRAFO]
 Quito:{'Cuenca': {'distancia': 2000, 'costo': 20}}
 Cuenca:{'Quito': {'distancia': 2000, 'costo': 20}}
+Manta:{'Guayaquill': {'distancia': 1500, 'costo': 35}}
+Guayaquill:{'Manta': {'distancia': 1500, 'costo': 35}}
+Napo:{'Sucumbios': {'distancia': 10000, 'costo': 50}}
+Sucumbios:{'Napo': {'distancia': 10000, 'costo': 50}}
 [JERARQUIA]
 Sierra:{'Aventura': ['Cuenca']}
+Costa:{'Aventura': ['Manta', 'Guayaquill']}
+Oriente:{'Naturaleza': ['Napo'], 'Aventura': ['Sucumbios']}
