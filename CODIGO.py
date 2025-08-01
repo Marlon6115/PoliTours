@@ -180,8 +180,24 @@ def modificar_punto(nombre):
         if 1 <= opcion <= len(lineas):
             origen = input("Ingrese la ciudad de origen: ").strip()
             destino = input("Ingrese la ciudad de destino: ").strip()
-            distancia = input("Ingrese la distancia en km: ").strip()
-            costo = input("Ingrese el costo en $: ").strip()
+            while True:
+                try:
+                    distancia = int(input("Ingrese la distancia en km: ").strip())
+                    if distancia > 0:
+                        break
+                    else:
+                        print("Distancia mal ingresada")
+                except ValueError:
+                    print("Por favor, ingrese un número válido para la distancia")
+            while True:
+                try:
+                    costo = int(input("Ingrese el costo en $: ").strip())
+                    if costo > 0:
+                        break
+                    else:
+                        print("Costo mal ingresado")
+                except ValueError:
+                    print("Por favor, ingrese un número válido para el costo")
 
             nueva_info = f"{origen} a {destino} ({distancia} km, ${costo})"
             lineas[opcion - 1] = nueva_info + "\n"
@@ -226,40 +242,37 @@ def eliminar_punto(nombre):
 
 def menu_cliente(nombre):
     while True:
-        print("-----------------|||-----------------")
-        print("\n---------- MENÚ CLIENTE -----------")
-        print("1. Ver mapa")
-        print("2. Consultar la ruta óptima")
-        print("3. Explorar lugares")
-        print("4. Seleccionar puntos turísticos")
-        print("5. Lista de puntos turísticos")
-        print("6. Actualizar punto turístico")
-        print("7. Eliminar punto turístico")
-        print("8. Salir")
-        print("-----------------|||-----------------")
-
-
-        opcion = int(input("Seleccione una opción: "))
-
-        if opcion == 1:
-            ver_mapa()
-        elif opcion == 2:
-            consultar_ruta_optima()
-        elif opcion == 3:
-            explorar_lugares()
-        elif opcion == 4:
-            seleccionar_puntos(nombre)
-        elif opcion == 5:
-            listar_puntos(nombre)
-        elif opcion == 6:
-            modificar_punto(nombre)
-        elif opcion == 7:
-            eliminar_punto(nombre)
-        elif opcion == 8:
-            print("Gracias, vuelva pronto")
-            break
-        else:
-            print("Opción no valida")
+        try:
+            print("-----------------|||-----------------")
+            print("\n---------- MENÚ CLIENTE -----------")
+            print("1. Ver mapa")
+            print("2. Consultar la ruta óptima")
+            print("3. Explorar lugares")
+            print("4. Seleccionar puntos turísticos")
+            print("5. Lista de puntos turísticos")
+            print("6. Eliminar punto turístico")
+            print("7. Salir")
+            print("-----------------|||-----------------")
+            opcion = int(input("Seleccione una opción: "))
+            if opcion == 1:
+                ver_mapa()
+            elif opcion == 2:
+                consultar_ruta_optima()
+            elif opcion == 3:
+                explorar_lugares()
+            elif opcion == 4:
+                seleccionar_puntos(nombre)
+            elif opcion == 5:
+                listar_puntos(nombre)
+            elif opcion == 6:
+                eliminar_punto(nombre)
+            elif opcion == 7:
+                print("Gracias, vuelva pronto")
+                break
+            else:
+                print("Opción no valida")
+        except ValueError:
+            print("Error: Entrada no válida. Por favor, ingrese un número.")
 
 def guardar_datos():
     with open(ARCHIVO_RUTAS, "w") as archivo:
@@ -277,13 +290,24 @@ def agregarCiudad():
     if ciudad1 in grafo and ciudad2 in grafo[ciudad1]:
         print("No se puede registrar una ruta ya existente entre esas dos ciudades.")
         return
-
-    try:
-        distancia = int(input(f"Distancia entre {ciudad1} y {ciudad2} (km): "))
-        costo = int(input(f"Costo entre {ciudad1} y {ciudad2} ($): "))
-    except ValueError:
-        print("Distancia o costo no válido.")
-        return
+    while True:
+        try:
+            distancia = int(input(f"Distancia entre {ciudad1} y {ciudad2} (km): "))
+            if distancia > 0:
+                break
+            else:
+                print("Distancia debe ser un número positivo.")
+        except ValueError:
+            print("Distancia no válida.")
+    while True:
+        try:
+            costo = int(input(f"Costo entre {ciudad1} y {ciudad2} ($): "))
+            if costo > 0:
+                break
+            else:
+                print("Costo debe ser un número positivo.")
+        except ValueError:
+            print("Costo no válido.")
 
     if ciudad1 not in grafo:
         grafo[ciudad1] = {}
@@ -375,9 +399,10 @@ def eliminarCiudad():
     print("Ciudad eliminada.")
 
 def menuAdmin():
-    print("\nADMINISTRADOR DE RUTAS")
     while True:
         try:
+            print("-----------------|||-----------------")
+            print("\nADMINISTRADOR DE RUTAS")
             print("1. Agregar nuevo punto turístico")
             print("2. Listar puntos turístico")
             print("3. Consultar punto turistico")
