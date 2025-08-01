@@ -1,7 +1,17 @@
 [GRAFO]
-Quito:{'Riobamba': {'distancia': 15, 'costo': 15}}
+Quito:{'Riobamba': {'distancia': 15, 'costo': 15}, 'Ambato': {'distancia': 151, 'costo': 6}, 'Ibarra': {'distancia': 112, 'costo': 10}, 'Loja': {'distancia': 607, 'costo': 40}}
 Riobamba:{'Quito': {'distancia': 15, 'costo': 15}}
 Cotopaxi:{}
+Ambato:{'Quito': {'distancia': 151, 'costo': 6}}
+Ibarra:{'Quito': {'distancia': 112, 'costo': 10}}
+Loja:{'Quito': {'distancia': 607, 'costo': 40}}
 [JERARQUIA]
 sierra:{'aventura': ['Quito']}
 oriente:{'naturaleza': ['Cotopaxi']}
+Sierra:{'Aventura': ['Ambato', 'Loja'], 'Naturaleza': ['Ibarra']}
+[TURISTICO]
+El Panecillo:{'nombre': 'El Panecillo', 'ciudad': 'Quito', 'costo': '3'}
+La Nariz del Diablo:{'nombre': 'La Nariz del Diablo', 'ciudad': 'Riobamba', 'costo': '1'}
+Laguna de Limpiopungo:{'nombre': 'Laguna de Limpiopungo', 'ciudad': 'Cotopaxi', 'costo': '4'}
+Mitad del Mundo:{'nombre': 'Mitad del Mundo', 'ciudad': 'Quito', 'costo': '5'}
+La Basilica del Voto Nacional:{'nombre': 'La Basilica del Voto Nacional', 'ciudad': 'Quito', 'costo': '2'}
