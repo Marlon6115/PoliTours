@@ -143,19 +143,19 @@ def actualizarCiudad():
         while True:
             try:
                 distancia = int(input("Distancia desde la capital (km): "))
-                if distancia >= 0:
+                if distancia > 0:
                     break
                 else:
-                    print("La distancia debe ser un número positivo.")
+                    print("La distancia mal ingresada")
             except ValueError:
                 print("Error: Ingrese un número válido para la distancia.")
         while True:
             try:
                 costo = int(input("Costo ($): "))
-                if costo >= 0:
+                if costo > 0:
                     break
                 else:
-                    print("El costo debe ser un número positivo.")
+                    print("Costo mal ingresado")
             except ValueError:
                 print("Error: Ingrese un número válido para el costo.")
         grafo[ciudad][destino] = {"distancia": distancia, "costo": costo}
