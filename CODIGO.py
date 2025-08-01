@@ -133,56 +133,60 @@ def listar_lugares(nombre_cliente):
     print("Costo total: $", total)
 
     while True:
-        opcion = int(input("\n1. Actualizar\n2. Eliminar\n3. Salir\nSeleccione una opcion: "))
-        if opcion == 1:
-            viejo = input("Lugar a actualizar: ")
-            nuevo = input("Nuevo nombre: ")
-            lugares = [nuevo if l == viejo else l for l in lugares]
-            with open(archivo, "w") as f:
-                for l in lugares:
-                    f.write(f"{l}\n")
-            print("Nombre actualizado exitosamente")
-            break
-        elif opcion == 2:
-            borrar = input("Lugar a eliminar: ")
-            lugares = [l for l in lugares if l != borrar]
-            with open(archivo, "w") as f:
-                for l in lugares:
-                    f.write(f"{l}\n")
-            print("Lugar eliminado exitosamente")
-            break
-        elif opcion == 3:
-            break
-        else:
-            print("Opción no válida.")
+        try:
+            opcion = int(input("\n1. Actualizar\n2. Eliminar\n3. Salir\nSeleccione una opcion: "))
+            if opcion == 1:
+                viejo = input("Lugar a actualizar: ")
+                nuevo = input("Nuevo nombre: ")
+                lugares = [nuevo if l == viejo else l for l in lugares]
+                with open(archivo, "w") as f:
+                    for l in lugares:
+                        f.write(f"{l}\n")
+                print("Nombre actualizado exitosamente")
+                break
+            elif opcion == 2:
+                borrar = input("Lugar a eliminar: ")
+                lugares = [l for l in lugares if l != borrar]
+                with open(archivo, "w") as f:
+                    for l in lugares:
+                        f.write(f"{l}\n")
+                print("Lugar eliminado exitosamente")
+                break
+            elif opcion == 3:
+                break
+            else:
+                print("Opción no válida.")
+        except ValueError:
+            print("Error: Por favor, ingrese un número válido.")
 
 def menu_cliente(nombre_cliente):
     while True:
-        print("\n--- MENÚ CLIENTE ---")
-        print("1. Ver mapa")
-        print("2. Consultar ruta óptima")
-        print("3. Explorar lugares")
-        print("4. Seleccionar lugares turísticos")
-        print("5. Lista de lugares turísticos seleccionados")
-        print("6. Salir")
-
-        opcion = input("Seleccione una opción: ")
-
-        if opcion == "1":
-            ver_mapa()
-        elif opcion == "2":
-            consultar_ruta_optima()
-        elif opcion == "3":
-            explorar_lugares()
-        elif opcion == "4":
-            seleccionar_lugares(nombre_cliente)
-        elif opcion == "5":
-            listar_lugares(nombre_cliente)
-        elif opcion == "6":
-            print("¡Gracias por usar el sistema!")
-            break
-        else:
-            print("Opción inválida.")
+        try:
+            print("\n--- MENÚ CLIENTE ---")
+            print("1. Ver mapa")
+            print("2. Consultar ruta óptima")
+            print("3. Explorar lugares")
+            print("4. Seleccionar lugares turísticos")
+            print("5. Lista de lugares turísticos seleccionados")
+            print("6. Salir")
+            opcion = int(input("Seleccione una opción: "))
+            if opcion == 1:
+                ver_mapa()
+            elif opcion == 2:
+                consultar_ruta_optima()
+            elif opcion == 3:
+                explorar_lugares()
+            elif opcion == 4:
+                seleccionar_lugares(nombre_cliente)
+            elif opcion == 5:
+                listar_lugares(nombre_cliente)
+            elif opcion == 6:
+                print("¡Gracias por usar el sistema!")
+                break
+            else:
+                print("Opción inválida.")
+        except ValueError:
+            print("Error: Por favor, ingrese un número válido.")
 
 def iniciar_sesion():
     nombre_cliente = input("Usuario: ").strip()
