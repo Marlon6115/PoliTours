@@ -1,6 +1,5 @@
 import os
 import heapq
-import random
 from collections import deque
 
 grafo = {}
